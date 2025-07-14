@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${recetaFormDto.id == null} ? 'Nueva Receta' : 'Editar Receta'"></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <style>
+        body {
+            padding: 15px; /* Reducido el padding del cuerpo para más espacio */
+            background-color: #f8f9fa; /* Fondo ligeramente gris */
+            font-size: 0.9rem; /* Fuente base ligeramente más pequeña para el cuerpo */
+        }
+        
+        /* Estilos generales para mensajes de error */
+        .error-message {
+            color: #dc3545; /* Color rojo de Bootstrap para errores */
+            font-size: 0.8em; /* Fuente un poco más pequeña y legible */
+            min-height: 18px; /* CLAVE: Reservar espacio para el error para evitar desalineación (ajustado) */
+            display: block; /* Asegura que ocupe su propia línea */
+            margin-top: 2px; /* Pequeño margen superior para separar del input */
+        }
+
+        .form-card {
+            margin-bottom: 15px; /* Margen inferior para separar las tarjetas (reducido) */
+            padding: 1rem; /* Padding interno consistente (reducido de 1.5rem) */
+            border: 1px solid #e9ecef; /* Borde más suave */
+            border-radius: 0.4rem; /* Bordes ligeramente más redondeados */
+            background-color: #fff; /* Fondo blanco para las tarjetas */
+            box-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.05); /* Sombra más ligera */
+        }
+        h1 {
+            font-size: 1.8rem; /* Tamaño de título principal (más pequeño) */
+            margin-bottom: 1rem; /* Margen inferior adecuado (reducido) */
+            color: #343a40; /* Color de texto más oscuro */
+        }
+        h2 {
+            font-size: 1.4rem; /* Tamaño de subtítulo "Ingredientes" (más pequeño) */
+            margin-top: 15px; /* Espacio antes de los subtítulos (reducido de 25px) */
+            margin-bottom: 10px; /* Margen inferior (reducido de 15px) */
+            color: #495057; /* Color de texto suave */
+        }
+
+        /* Estilos para cada fila de ítem de receta */
+        .item-receta-row {
+            border: 1px solid #ced4da; /* Borde suave para cada fila de ingrediente */
+            padding: 10px; /* Padding interno generoso para cada fila (reducido de 15px) */
+            margin-bottom: 10px; /* Espacio entre filas de ingredientes (reducido de 15px) */
+            background-color: #fcfdfe; /* Fondo muy claro para diferenciar */
+            border-radius: 0.3rem; /* Bordes redondeados (ligeramente menos) */
+            display: flex; /* ¡CLAVE! Usar flexbox para alinear elementos horizontalmente */
+            align-items: flex-start; /* Alinear elementos al inicio (parte superior) */
+            flex-wrap: wrap; /* Permitir que los elementos se envuelvan en pantallas pequeñas */
+        }
+        
+        /* Asegurarse de que las columnas de Bootstrap dentro de item-receta-row manejen su padding */
+        .item-receta-row .col-md-5,
+        .item-receta-row .col-md-3,
+        .item-receta-row .col-md-1 {
+            padding-left: 5px; /* Padding izquierdo reducido entre columnas */
+            padding-right: 5px; /* Padding derecho reducido entre columnas */
+        }
+        /* Ajuste fino para la primera columna en los items para que no tenga padding a la izquierda */
+        .item-receta-row .col-md-5:first-child {
+            padding-left: 0;
+        }
+        /* Ajuste fino para la última columna en los items para que no tenga padding a la derecha */
+        .item-receta-row .col-md-1:last-child {
+            padding-right: 0;
+        }
+
+        /* Ajustes para los form-group dentro de item-receta-row */
+        .item-receta-row .form-group {
+            margin-bottom: 0; /* Elimina el margen inferior predeterminado del form-group */
+            width: 100%; /* Asegura que el form-group ocupe el espacio completo de su columna */
+        }
+        
+        /* Ajustes para las etiquetas y controles de formulario dentro de los ítems */
+        .item-receta-row label {
+            font-size: 0.8em; /* Fuente más pequeña para las etiquetas de los ingredientes */
+            margin-bottom: 3px; /* Espacio reducido entre label y input */
+            display: block; /* Asegura que la etiqueta esté en su propia línea */
+        }
+        .item-receta-row .form-control {
+            height: calc(1.8em + .75rem + 2px); /* Altura de inputs ligeramente reducida */
+            padding: .25rem .5rem; /* Padding más pequeño para inputs */
+            font-size: 0.85rem; /* Fuente más pequeña para inputs */
+        }
+        
+        /* Estilos específicos para el botón "Quitar" */
+        .item-receta-row .btn-danger.btn-sm {
+            white-space: nowrap; /* Evita que el texto del botón se rompa */
+            min-width: 65px; /* Ancho mínimo para que se vea bien (reducido) */
+            padding: .25rem .5rem; /* Ajusta el padding para el tamaño 'sm' */
+            font-size: 0.85rem; /* Fuente ligeramente más grande para el botón */
+            height: calc(1.8em + .75rem + 2px); /* Alinear la altura con los inputs */
+        }
+
+        /* Alineación del botón Quitar con los campos de input */
+        .item-receta-row .col-md-1.d-flex.align-items-end {
+            /* Bootstrap 'align-items-end' ya funciona bien con flexbox para alinear al final */
+            /* Se asegura que el botón se alinee con la base de los inputs */
+            display: flex; 
+            align-items: flex-end; 
+        }
+
+        /* Márgenes de botones al final del formulario */
+        .form-actions {
+            margin-top: 20px; /* Más espacio antes de los botones de acción (reducido) */
+            margin-bottom: 20px; /* Margen inferior (reducido) */
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        .form-actions .btn {
+            min-width: 100px; /* Ancho mínimo para los botones principales (reducido) */
+            padding: .5rem 1rem; /* Más padding para que se vean como botones de acción (reducido) */
+            font-size: 0.9rem; /* Fuente más pequeña para los botones principales */
+        }
+        .form-actions .btn.ml-3 {
+            margin-left: 15px !important; /* Ajuste del margen para el botón secundario */
+        }
+
+        /* Ajuste para el padding del contenedor principal si la pantalla es muy pequeña */
+        @media (max-width: 767.98px) {
+            .container {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            /* En pantallas pequeñas, los campos de nombre y descripción se apilan */
+            .main-recipe-info .col-md-4, /* Las columnas se apilan por defecto */
+            .main-recipe-info .col-md-8 {
+                margin-bottom: 10px; /* Espacio entre ellos cuando se apilan */
+            }
+            /* Asegurarse de que el último elemento apilado no tenga margin-bottom */
+            .main-recipe-info .col-md-8:last-child {
+                margin-bottom: 0;
+            }
+
+            .item-receta-row .col-md-5,
+            .item-receta-row .col-md-3,
+            .item-receta-row .col-md-1 {
+                padding-left: 0;
+                padding-right: 0;
+            }
+            .item-receta-row .col-md-5,
+            .item-receta-row .col-md-3 {
+                margin-bottom: 10px; /* Espacio entre columnas en móvil */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4" th:text="${recetaFormDto.id == null} ? 'Registrar Nueva Receta' : 'Editar Receta'"></h1>
+
+        <div th:if="${mensajeExito}" class="alert alert-success mt-2" th:text="${mensajeExito}"></div>
+        <div th:if="${mensajeError}" class="alert alert-danger mt-2" th:text="${mensajeError}"></div>
+
+        <form th:action="@{/recetas/guardar}" th:object="${recetaFormDto}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="form-card">
+                <div class="row main-recipe-info">
+                    <div class="col-md-4"> <div class="form-group">
+                            <label for="nombre">Nombre de la Receta:</label>
+                            <input type="text" class="form-control" id="nombre" th:field="*{nombre}" />
+                            <span th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}" class="error-message"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-8"> <div class="form-group">
+                            <label for="descripcion">Descripción:</label>
+                            <textarea class="form-control" id="descripcion" th:field="*{descripcion}" rows="2"></textarea> <span th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}" class="error-message"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-card">
+                <h2>Ingredientes</h2>
+                <div id="itemsContainer">
+                    <div th:each="item, stat : *{items}" class="item-receta-row">
+                        <input type="hidden" th:field="*{items[__${stat.index}__].id}" />
+
+                        <div class="row w-100 no-gutters"> 
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label th:for="${'ingredienteId' + stat.index}">Ingrediente:</label>
+                                    <select class="form-control" th:field="*{items[__${stat.index}__].ingredienteId}" th:id="${'ingredienteId' + stat.index}">
+                                        <option value="">Seleccione un ingrediente</option>
+                                        <option th:each="ingrediente : ${ingredientesDisponibles}"
+                                                th:value="${ingrediente.id}"
+                                                th:text="${ingrediente.nombre}">
+                                        </option>
+                                    </select>
+                                    <span th:if="${#fields.hasErrors('items[' + stat.index + '].ingredienteId')}"
+                                          th:errors="*{items[__${stat.index}__].ingredienteId}" class="error-message"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label th:for="${'cantidad' + stat.index}">Cantidad (kg/litro):</label>
+                                    <input type="number" step="0.01" class="form-control" th:field="*{items[__${stat.index}__].cantidad}" th:id="${'cantidad' + stat.index}" min="0.01" />
+                                    <span th:if="${#fields.hasErrors('items[' + stat.index + '].cantidad')}"
+                                          th:errors="*{items[__${stat.index}__].cantidad}" class="error-message"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label th:for="${'calorias' + stat.index}">Calorías aportada por el ingrediente:</label>
+                                    <input type="number" class="form-control" th:field="*{items[__${stat.index}__].calorias}" th:id="${'calorias' + stat.index}" min="0" />
+                                    <span th:if="${#fields.hasErrors('items[' + stat.index + '].calorias')}"
+                                          th:errors="*{items[__${stat.index}__].calorias}" class="error-message"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end justify-content-center"> 
+								        <button type="submit" name="action" value="removeItem" th:formaction="@{/recetas/quitarItem}"
+                                        th:formmethod="post" class="btn btn-danger btn-sm"> Quitar
+                                    <input type="hidden" name="itemIndex" th:value="${stat.index}" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" name="action" value="addItem" th:formaction="@{/recetas/agregarItem}"
+                        th:formmethod="post" class="btn btn-secondary mt-3">
+                    Agregar Nuevo Ingrediente
+                </button>
+                
+                <span th:if="${#fields.hasErrors('items')}" th:errors="*{items}" class="error-message"></span>
+            </div>
+
+            <div class="form-actions d-flex justify-content-start align-items-center">
+                <button type="submit" class="btn btn-success">Guardar Receta</button>
+                <a th:href="@{/recetas/buscar}" class="btn btn-info ml-3">Cancelar y Volver a Lista</a> 
+            </div>
+        </form>
+
+        <p class="mt-4"><a th:href="@{/}" class="btn btn-link">Volver a la página principal</a></p> 
+
+    </div>
+</body>
+</html>

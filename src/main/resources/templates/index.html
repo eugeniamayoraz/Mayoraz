@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a la Aplicación de la ONG</title>
+    <!-- Enlace a Bootstrap CSS para un estilo moderno y responsivo -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    
+    <style>
+        /* Estilos generales para el cuerpo */
+        body {
+            font-family: 'Inter', sans-serif; /* Fuente consistente con Tailwind (si se usara) */
+            background-color: #f8f9fa; /* Un fondo gris claro para la página */
+            color: #343a40; /* Color de texto oscuro */
+            padding: 40px 20px; /* Más padding para que el contenido no esté pegado a los bordes */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ocupa al menos el 100% de la altura de la vista */
+            align-items: center; /* Centra horizontalmente el contenido principal */
+            justify-content: center; /* Centra verticalmente el contenido principal */
+            text-align: center; /* Centra el texto */
+        }
+
+        /* Contenedor principal para centrar el contenido */
+        .main-container {
+            max-width: 800px; /* Ancho máximo para el contenido */
+            width: 100%;
+            background-color: #ffffff; /* Fondo blanco para el contenido */
+            padding: 30px;
+            border-radius: 10px; /* Bordes redondeados */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        }
+
+        /* Estilos para los títulos */
+        h1 {
+            color: #007bff; /* Color azul primario de Bootstrap */
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem; /* Tamaño de fuente más grande */
+        }
+
+        h2 {
+            color: #6c757d; /* Color gris secundario de Bootstrap */
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Estilos para la lista de navegación */
+        ul {
+            list-style: none; /* Eliminar viñetas */
+            padding: 0;
+            margin-top: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 10px; /* Espacio entre elementos de la lista */
+        }
+
+        /* Estilos para los enlaces */
+        .btn-link-custom {
+            display: inline-block;
+            padding: 12px 25px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 100%; /* Ocupa todo el ancho disponible */
+            max-width: 300px; /* Ancho máximo para los botones */
+            margin: 0 auto; /* Centrar los botones */
+            border: 2px solid transparent; /* Borde transparente por defecto */
+        }
+
+        /* Estilo para el enlace habilitado (Gestión de Recetas) */
+        .btn-link-enabled {
+            background-color: #28a745; /* Verde de éxito de Bootstrap */
+            color: #ffffff;
+            border-color: #28a745;
+            box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
+        }
+        .btn-link-enabled:hover {
+            background-color: #218838; /* Verde más oscuro al pasar el ratón */
+            border-color: #1e7e34;
+            transform: translateY(-2px); /* Pequeño efecto al pasar el ratón */
+            box-shadow: 0 6px 10px rgba(40, 167, 69, 0.3);
+        }
+
+        /* Estilo para los enlaces deshabilitados (transparentes y sin efecto) */
+        .btn-link-disabled {
+            background-color: #e9ecef; /* Un gris muy claro */
+            color: #6c757d; /* Texto gris */
+            opacity: 0.6; /* Más transparente */
+            cursor: not-allowed; /* Cursor de "no permitido" */
+            pointer-events: none; /* Deshabilita los eventos de clic */
+            border-color: #e9ecef;
+            box-shadow: none; /* Sin sombra */
+        }
+        /* Asegurarse de que no haya efectos al pasar el ratón sobre los deshabilitados */
+        .btn-link-disabled:hover {
+            background-color: #e9ecef;
+            color: #6c757d;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Pie de página */
+        footer {
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1 class="mb-4">¡Bienvenido a la Aplicación de Gestión de la ONG!</h1>
+        <p>Esta es la página de inicio de tu aplicación. Utiliza los enlaces de navegación para acceder a las diferentes funcionalidades.</p>
+
+        <h2>Navegación:</h2>
+        <ul>
+            <!-- Enlace Habilitado: Gestión de Recetas -->
+            <li><a th:href="@{/recetas/buscar}" class="btn-link-custom btn-link-enabled">Gestión de Recetas</a></li> <!--//Thymeleaf Genera la URL:-->
+            
+            <!-- Enlaces Deshabilitados (con href="#" para que no naveguen) -->
+            <li><a th:href="@{#}" class="btn-link-custom btn-link-disabled">Gestión de Preparaciones (Próximamente)</a></li>
+            <li><a th:href="@{#}" class="btn-link-custom btn-link-disabled">Gestión de Familias (Próximamente)</a></li>
+            <li><a th:href="@{#}" class="btn-link-custom btn-link-disabled">Gestión de Entregas (Próximamente)</a></li>
+        </ul>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 FernandezMayorazParraVillalba - Aplicación ONG</p>
+    </footer>
+</body>
+</html>
+
+/* Notese que el link gestion Recetas, no direccion a un html, sino que hace una peticion de tipo Get y la asocia con th a la URL
+/recetas/buscar entonces se invoca al controller que busca que metodo Get tiene asociado a esa URL y es el "mostrarBusqueda"
+que es el que levanta (retorna) el html RecetasBuscarForm con la lista cargada y todo lo demas que contiene este html(ej.filtros)
+ */

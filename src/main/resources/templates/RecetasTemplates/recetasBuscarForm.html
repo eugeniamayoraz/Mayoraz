@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Búsqueda de Recetas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        /* Opcional: para añadir un pequeño espacio entre las tarjetas de formulario si es necesario */
+        .form-card {
+            margin-bottom: 20px; /* Espacio debajo de cada tarjeta de formulario */
+        }
+
+        /* --- INICIO: Estilo para el encabezado de la tabla (gris intermedio) --- */
+        /* Aplicamos el estilo directamente a los th dentro del thead de cualquier tabla */
+        .table thead th {
+            background-color: #ced4da; /* Un gris un poco más oscuro que el anterior, para mayor visibilidad */
+            color: #212529; /* Color de texto oscuro para que contraste bien */
+            border-color: #b0b4b8; /* Borde sutil para la celda, ajustado al nuevo color de fondo */
+        }
+        /* --- FIN: Estilo para el encabezado de la tabla --- */
+
+        /* --- INICIO: Estilos para hacer los botones de búsqueda más compactos --- */
+        .btn-compact-search {
+            padding: .25rem .75rem; /* Padding más pequeño para un botón más compacto */
+            font-size: .875rem; /* Fuente un poco más pequeña */
+            line-height: 1.5; /* Altura de línea estándar */
+            /* min-width: 65px; /* No es necesario si se usa padding, pero puedes agregarlo si el texto no cabe */
+        }
+        /* --- FIN: Estilos para hacer los botones de búsqueda más compactos --- */
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">Búsqueda de Recetas</h1>
+							
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-4 p-3 border rounded form-card">
+                    <h2>Filtrar por Nombre</h2>
+                    <form th:action="@{/recetas/buscarPorNombre}" method="get">
+                        <div class="form-group">
+                            <label for="nombreReceta">Nombre de la Receta (contiene):</label>
+                            <input type="text" class="form-control" id="nombreReceta" name="nombre" placeholder="Ingrese parte del nombre de la receta" required>
+                        </div>
+                        <button type="submit" class="btn btn-info btn-compact-search">Buscar</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-4 p-3 border rounded form-card">
+                    <h2>Filtrar por Rango de Calorías</h2>
+                    <form th:action="@{/recetas/buscarCalorias}" method="get">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="minCalorias">Calorías Mínimas:</label>
+                                <input type="number" class="form-control" id="minCalorias" name="minCalorias" placeholder="Ej: 300" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="maxCalorias">Calorías Máximas:</label>
+                                <input type="number" class="form-control" id="maxCalorias" name="maxCalorias" placeholder="Ej: 600" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-info btn-compact-search">Buscar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+		
+        <div th:if="${mensaje}" class="alert alert-info mt-3" th:text="${mensaje}">
+        </div>
+
+        <div th:if="${!listaRecetas.isEmpty()}">
+            <h2 class="mb-3">Lista de Recetas:</h2>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Calorías Totales</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="receta : ${listaRecetas}">
+                        <td th:text="${receta.nombre}">Nombre</td>
+                        <td th:text="${receta.descripcion}">Descripción de Receta</td>
+                        <td th:text="${receta.caloriasTotales}">Calorías</td>
+                        <td>
+                            <a th:href="@{/recetas/editar/{id}(id=${receta.id})}" class="btn btn-primary btn-sm mr-1">Editar</a>
+                            <a th:href="@{/recetas/eliminar/{id}(id=${receta.id})}" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que quieres eliminar esta receta?');">Eliminar</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+		<div th:if="${listaRecetas.isEmpty() and (mensaje == null or mensaje == '')}">
+		    <p class="alert alert-info">No se encontraron recetas en la base de datos.</p>
+		    <p>Puedes agregar algunas recetas para verlas aquí.</p>
+		</div>
+		
+        <div class="mb-3 mt-4"> 
+		    <a th:href="@{/recetas/nueva}" class="btn btn-success">Agregar Receta</a>
+		</div>
+
+        <p class="mt-4"><a th:href="@{/}" class="btn btn-secondary">Volver a la página principal</a></p>
+
+    </div>
+</body>
+</html>
