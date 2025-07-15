@@ -1,0 +1,133 @@
+
+        body {
+            font-family: 'Inter', sans-serif; /* comentario agregado: Usar Inter como fuente */
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .container {
+            /* comentario editado: Eliminado max-width para que la página no se vea "encuadrada" y ocupe más ancho */
+            margin-top: 20px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* comentario agregado: Sombra más suave */
+        }
+        h1, h2 {
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        .btn-info { /* Estilo para el nuevo botón "Limpiar Filtros" */
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            border-radius: 8px;
+            padding: 8px 15px; /* Un poco más pequeño que los principales */
+            font-size: 0.9rem;
+            margin-left: 10px; /* Separación del mensaje */
+        }
+        .btn-info:hover {
+            background-color: #138496;
+            border-color: #117a8b;
+        }
+        .table {
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden; /* Para que los bordes redondeados se apliquen a la tabla */
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .table thead th {
+            background-color: #e9ecef; /* comentario agregado: Un gris más claro para el encabezado */
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .table tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.03); /* comentario agregado: Raya más suave */
+        }
+        .table tbody tr:hover {
+            background-color: #e2e6ea;
+        }
+        .alert {
+            border-radius: 8px;
+            padding: 15px 20px;
+            display: flex; /* comentario agregado: Para alinear el mensaje y el botón */
+            align-items: center; /* comentario agregado: Para alinear verticalmente */
+            justify-content: space-between; /* comentario agregado: Para espacio entre mensaje y botón */
+        }
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        .form-card {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        .form-card h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            color: #343a40;
+        }
+        /* comentario agregado: Estilo para los inputs con bordes redondeados */
+        .form-control.rounded {
+            border-radius: 0.5rem !important; /* Ajusta el radio según tu preferencia */
+        }
+        /* comentario editado: Estilo para los botones de acción en la tabla (Editar/Eliminar) */
+        .btn-group .btn {
+            border-radius: 8px !important;
+            display: inline-flex; /* Asegura que el contenido se comporte como flex para centrado */
+            align-items: center; /* Centra el texto verticalmente */
+            justify-content: center; /* Centra el texto horizontalmente */
+            padding: 0.25rem 0.75rem; /* comentario agregado: Ajusta el padding para un tamaño más consistente */
+            font-size: 0.875rem; /* comentario agregado: Ajusta el tamaño de la fuente para consistencia con btn-sm */
+            line-height: 1.5; /* comentario agregado: Altura de línea estándar */
+        }
+        .btn-group .btn + .btn {
+            margin-left: 5px; /* Espacio entre los botones de editar y eliminar */
+        }

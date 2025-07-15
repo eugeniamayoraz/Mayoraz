@@ -5,10 +5,11 @@ import com.tp.ong.moduloRecetas.entidades.ItemReceta;
 import com.tp.ong.moduloRecetas.entidades.Receta;
 import com.tp.ong.moduloRecetas.accesoDatos.IIngredienteRepo;
 import com.tp.ong.moduloRecetas.accesoDatos.IRecetaRepo;
+import com.tp.ong.moduloRecetas.accesoDatos.IItemRecetaRepo; // ¡NUEVA IMPORTACIÓN!
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.annotation.Transactional; // Importar Transactional
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +21,13 @@ public class CargaDeDatos {
     // Inyectamos los repositorios que necesitamos
     private final IRecetaRepo recetaRepo;
     private final IIngredienteRepo ingredienteRepo;
+    private final IItemRecetaRepo itemRecetaRepo; // ¡NUEVA INYECCIÓN!
 
     // Constructor para inyección de dependencias por Spring
-    public CargaDeDatos(IRecetaRepo recetaRepo, IIngredienteRepo ingredienteRepo) {
+    public CargaDeDatos(IRecetaRepo recetaRepo, IIngredienteRepo ingredienteRepo, IItemRecetaRepo itemRecetaRepo) { // ¡Constructor ACTUALIZADO!
         this.recetaRepo = recetaRepo;
         this.ingredienteRepo = ingredienteRepo;
+        this.itemRecetaRepo = itemRecetaRepo; // Asignación del nuevo repositorio
     }
 
     // Este método será ejecutado por Spring Boot una vez que el contexto de la aplicación esté completamente cargado
@@ -74,7 +77,8 @@ public class CargaDeDatos {
 
             System.out.println("--- Carga de datos de ejemplo finalizada ---");
 
-            // *** INGREDIESTES ADICIONALES (para que esten dados de alta y se puedan usar en itemReceta ***
+            // *** INGREDIENTES ADICIONALES (para que esten dados de alta y se puedan usar en itemReceta) ***
+            // Estos no necesitan cambios ya que no tienen borrado lógico propio
             getOrCreateIngrediente("Carne Picada");
             getOrCreateIngrediente("Cebolla de Verdeo");
             getOrCreateIngrediente("Morrón Rojo");
@@ -128,41 +132,49 @@ public class CargaDeDatos {
     // Este método busca una receta por nombre (no eliminada lógicamente) y la crea si no existe,
     // incluyendo todos sus ItemReceta y el cálculo de calorías.
     private Receta getOrCreateReceta(String nombreReceta, String descripcionReceta, List<ItemRecetaData> itemDetails) {
-        // Verificar si la receta ya existe (y no está eliminada lógicamente)
-        Optional<Receta> existingReceta = recetaRepo.findByNombreIgnoreCase(nombreReceta);
-        		
-        		//findByNombreAndDeletedFalse(nombreReceta);
-
+        // Verifica si la receta ya existe y NO está marcada como deleted = true
+        //findByNombreAndDeletedFalse(String nombre);
+        Optional<Receta> existingReceta = recetaRepo.findByNombreAndDeletedFalse(nombreReceta); 
+        
         if (existingReceta.isPresent()) {
-            System.out.println("--- Receta '" + nombreReceta + "' ya existe y no está eliminada. Saltando inserción completa. ---");
-            return existingReceta.get(); // Retornar la receta existente
+            System.out.println("--- Receta '" + nombreReceta + "' ya existe y no está eliminada lógicamente. Saltando inserción completa. ---");
+            return existingReceta.get(); // Retorna la receta existente
         } else {
-            // Si la receta NO existe, procedemos a crearla junto con sus ítems.
+            // Si la receta NO existe o está eliminada lógicamente, procedemos a crearla junto con sus ítems.
 
-            // 1. Crear los ItemReceta a partir de los datos proporcionados
+            // 1. Creo los ItemReceta a partir de los datos proporcionados
             List<ItemReceta> itemsReceta = new ArrayList<>();
             for (ItemRecetaData itemData : itemDetails) {
-                // Aseguramos que el ingrediente exista o lo creamos
+                // Me aseguro que el ingrediente exista o lo creo
                 Ingrediente ingrediente = getOrCreateIngrediente(itemData.ingredienteNombre());
                 // Crear el ItemReceta. El último 'null' para Receta se establecerá bidireccionalmente después
+                // El constructor de ItemReceta inicializa 'deleted' a false por defecto
                 ItemReceta item = new ItemReceta(ingrediente, itemData.cantidad(), itemData.calorias(), null);
                 itemsReceta.add(item);
             }
 
             // 2. Instanciar la Receta
             Receta nuevaReceta = new Receta(nombreReceta, descripcionReceta, itemsReceta);
-            nuevaReceta.setDeleted(false); // Asegúrate de que se marque como NO eliminada lógicamente
 
-            // 3. Establecer la relación bidireccional en los ItemReceta
+            // Asegúrate de que la Receta también se marque como NO eliminada lógicamente.
+            // Aunque el constructor de Receta ya debería hacerlo, lo reforzamos aquí para claridad en la carga inicial.
+            nuevaReceta.setDeleted(false); 
+
+            // 3. Establezco la relación bidireccional en los ItemReceta ANTES de guardarse
             for (ItemReceta item : itemsReceta) {
                 item.setReceta(nuevaReceta);
             }
 
-            // 4. Calcular y establecer las calorías totales ANTES de guardar la receta
+            // 4. Calculo calorías totales ANTES de guardar la receta
+            // Este método ahora filtra por 'item.isDeleted()' automáticamente
             nuevaReceta.calcularCaloriasTotales();
 
-            // 5. Guardar la Receta (esto también debería guardar los ItemReceta en cascada si está configurado)
-            recetaRepo.save(nuevaReceta);
+            // 5. Guardar la Receta primero para que tenga un ID asignado por la base de datos
+            recetaRepo.save(nuevaReceta); 
+            
+            // 6. Ahora que la receta tiene un ID, guardo los ItemReceta asociados.
+            itemRecetaRepo.saveAll(itemsReceta); // 
+
             System.out.println("--- Nueva Receta '" + nombreReceta + "' guardada con sus ítems y calorías calculadas ---");
             return nuevaReceta;
         }

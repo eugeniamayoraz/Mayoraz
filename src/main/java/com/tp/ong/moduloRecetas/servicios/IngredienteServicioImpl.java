@@ -20,29 +20,28 @@ public class IngredienteServicioImpl implements IIngredienteServicio{
 	private IIngredienteRepo repo;
 	
 	//Metodos para listar
-	@Override
+	@Override //lo usa el Controller
 	public List<Ingrediente> listarTodosLosIngredientes() {
 		// TODO Auto-generated method stub
 		return repo.findAll();
 	}
-	
-    @Override
-    public Optional<Ingrediente> buscarIngredientePorId(Long id) {
-        return repo.findById(id);
-    }
-	
-	//Metodos para buscar por nombre o palabra
-	@Override
-	public Optional<Ingrediente> buscarPorNombreSinCaseSensitive(String nombre) {
-		// TODO Auto-generated method stub
-		return repo.findByNombreIgnoreCase(nombre);
-	}	
-
-	@Override
-	public List<Ingrediente> buscarPorNombreContienePalabra(String palabra) {
-		// TODO Auto-generated method stub
-		return repo.findByNombreContainingIgnoreCase(palabra);
-	}
-	
-
+		
 }
+
+//@Override //Creo no lo uso mas
+//public Optional<Ingrediente> buscarIngredientePorId(Long id) {
+//  return repo.findById(id);
+//}
+//
+////Metodos para buscar por nombre o palabra
+//@Override
+//public Optional<Ingrediente> buscarPorNombreSinCaseSensitive(String nombre) {
+//	// TODO Auto-generated method stub
+//	return repo.findByNombreIgnoreCase(nombre);
+//}	
+//
+//@Override
+//public List<Ingrediente> buscarPorNombreContienePalabra(String palabra) {
+//	// TODO Auto-generated method stub
+//	return repo.findByNombreContainingIgnoreCase(palabra);
+//}

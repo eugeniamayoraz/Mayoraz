@@ -11,12 +11,28 @@ import com.tp.ong.moduloRecetas.entidades.*;
 
 public interface IIngredienteRepo extends JpaRepository<Ingrediente, Long> {
 	
-	Optional<Ingrediente> findByNombre(String nombre);
+	Optional<Ingrediente> findByNombre(String nombre); //lo usa la carga de datos
 	
-	Optional<Ingrediente> findByNombreIgnoreCase(String nombre);
-	 
-	List<Ingrediente> findByNombreContainingIgnoreCase(String nombre);
-	
-	
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Optional<Ingrediente> findByNombreIgnoreCase(String nombre);
+
+//List<Ingrediente> findByNombreContainingIgnoreCase(String nombre);

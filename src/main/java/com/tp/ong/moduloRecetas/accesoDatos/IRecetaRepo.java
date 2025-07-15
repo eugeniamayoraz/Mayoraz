@@ -10,48 +10,35 @@ import java.util.Optional;
 @Repository
 public interface IRecetaRepo extends JpaRepository<Receta, Long> {
 
-    // No pones nada si vas a usar los metodos basicos, podes escribir metodos personalizados si lo necesitas.-
+// No pones nada si vas a usar los metodos basicos, podes escribir metodos personalizados si lo necesitas.-
+	
+//----Metodos de Busqueda de una receta
 
-    // Método para buscar una receta por nombre exacto (case-sensitive) y que NO esté eliminada lógicamente.
-    // Esto reemplaza al antiguo `findByNombre`. Ahora siempre filtra por 'deleted=false'.
-    Optional<Receta> findByNombreAndDeletedFalse(String nombre);
+    // Con esto busco por nombre, ignoro may y minusculas, y pido que NO esté eliminada lógicamente.
+    //lo uso para la validacion de nombre existente
+	Optional<Receta> findByNombreIgnoreCaseAndDeletedFalse(String nombre);
 
-    // Con esto a dif del anterior ignora may y minusculas, y que NO esté eliminada lógicamente.
-    // Este método ahora es el estándar para búsquedas por nombre que ignoran mayúsculas/minúsculas y son activas.
-    Optional<Receta> findByNombreIgnoreCaseAndDeletedFalse(String nombre);
-
-    // Método para buscar recetas cuyo nombre contenga una palabra, ignorando mayúsculas/minúsculas,
-    // y que NO estén eliminadas lógicamente.
-    // Esto reemplaza al antiguo `findByNombreContainingIgnoreCase`. Ahora siempre filtra por 'deleted=false'.
-    List<Receta> findByNombreContainingIgnoreCaseAndDeletedFalse(String nombre);
-
-    // MÉTODO: para buscar recetas por rango de calorías, y que NO estén eliminadas lógicamente.
-    // Spring Data JPA lo traduce a algo como WHERE caloriasTotales BETWEEN ?1 AND ?2 AND deleted = false.
-    // Esto reemplaza al antiguo `findByCaloriasTotalesBetween`. Ahora siempre filtra por 'deleted=false'.
-    List<Receta> findByCaloriasTotalesBetweenAndDeletedFalse(Integer minCalorias, Integer maxCalorias);
-
-
-    // Metodo para buscar Receta por ID ej para la edicion y eliminacion.
-    // Usaremos este método para obtener una receta por ID, solo si NO está eliminada lógicamente.
-    // Es el método preferido para obtener recetas para edición o visualización después de la implementación de borrado lógico.
-    // NOTA: JpaRepository ya provee findById(ID), pero este es un método personalizado crucial para el borrado lógico.
+    // Metodo para buscar Receta por ID lo uso para la eliminacion logica.
+    // obtengo una receta por ID, solo si NO está eliminada lógicamente.
+    // JpaRepository ya nos da un findById(ID), pero aca personalizo para el borrado lógico.
     Optional<Receta> findByIdAndDeletedFalse(Long id);
+    
+    //lo uso para la carga de datos.-
+    Optional<Receta> findByNombreAndDeletedFalse(String nombreReceta); 
 
 
-    // Ya no es un "Nuevo método", ahora es el método estándar para este tipo de búsqueda.
-    // Este es crucial para las validaciones y búsquedas de recetas activas.
-    // Optional<Receta> findByNombreIgnoreCaseAndDeletedFalse(String nombre); // Ya lo tenemos arriba como la nueva implementación estándar.
-
-    // --- Métodos de Listado General (siempre filtran por deleted = false) ---
+// --- Métodos de Listado (siempre filtran por deleted = false) ---
 
     // Método para buscar todas las recetas que NO estén eliminadas lógicamente o sea las Activas
     List<Receta> findByDeletedFalse();
+    
+    // Método para buscar recetas cuyo nombre contenga una palabra, ignorando mayúsculas/minúsculas,
+    // y que NO estén eliminadas lógicamente.
+    List<Receta> findByNombreContainingIgnoreCaseAndDeletedFalse(String nombre);
 
-    //lo usa la precarga de datos
-	Optional<Receta> findByNombreIgnoreCase(String nombreReceta);
-
-    // Elimino los métodos sin "AndDeletedFalse" para forzar que todas las búsquedas de cara al usuario final
-    // solo muestren resultados activos. Si en algún momento necesitas acceder a una receta eliminada
-    // (ej. para un panel de administración), se debería crear un método específico como `findByNombreEvenIfDeleted(String nombre)`.
-
+    // MÉTODO: para buscar recetas por rango de calorías, y que NO estén eliminadas lógicamente.
+    // Spring Data JPA lo traduce a algo como WHERE caloriasTotales BETWEEN ?1 AND ?2 AND deleted = false..
+    List<Receta> findByCaloriasTotalesBetweenAndDeletedFalse(Integer minCalorias, Integer maxCalorias);
+    
+    
 }

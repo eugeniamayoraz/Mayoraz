@@ -1,4 +1,4 @@
-package com.tp.ong.controller; // 
+package com.tp.ong.homeController; // 
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

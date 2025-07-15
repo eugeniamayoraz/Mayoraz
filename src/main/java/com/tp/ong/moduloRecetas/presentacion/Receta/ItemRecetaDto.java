@@ -7,8 +7,7 @@ public class ItemRecetaDto {
 	
  private Long id;
 
- @NotNull(message = "El ID del ingrediente no puede ser nulo.")
- @Min(value = 1, message = "El ID del ingrediente debe ser un valor positivo.") //Solo el ID del ingrediente existente (que el usuario
+ @NotNull(message = "Debe Seleccionar un ingrediente")
  private Long ingredienteId;
  
 

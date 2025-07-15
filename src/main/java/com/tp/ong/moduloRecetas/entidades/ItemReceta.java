@@ -13,6 +13,7 @@ public class ItemReceta {
     @ManyToOne
     @JoinColumn(name = "ingrediente_id")
     private Ingrediente ingrediente;
+    
     private Double cantidad;
     private Integer calorias;
 
@@ -20,9 +21,13 @@ public class ItemReceta {
     @JoinColumn(name = "receta_id")
     private Receta receta;
 
+    // Nuevo atributo: para borrado lógico, por defecto false
+    @Column(nullable = false) // Asegurarse de que no sea nulo en la base de datos
+    private boolean deleted = false; // Valor por defecto false
+
     //Constructores
     
-    //vacio
+    //vacio (necesario para JPA)
 	public ItemReceta() {
 		super();
 	}
@@ -35,6 +40,7 @@ public class ItemReceta {
 		this.cantidad = cantidad;
 		this.calorias = calorias;
 		this.receta = receta;
+        this.deleted = false; // Por defecto al crear un nuevo ítem, no está eliminado
 	}
 	
 	//con todos los atributos menos ID del item 
@@ -44,6 +50,7 @@ public class ItemReceta {
 			this.cantidad = cantidad;
 			this.calorias = calorias;
 			this.receta = receta;
+            this.deleted = false; // Por defecto al crear un nuevo ítem, no está eliminado
 		}
 
 	// Getters y Setters
@@ -61,4 +68,18 @@ public class ItemReceta {
 
     public Ingrediente getIngrediente() { return ingrediente; }
     public void setIngrediente(Ingrediente ingrediente) { this.ingrediente = ingrediente; }
+
+    // Getter y Setter para el nuevo atributo 'deleted'
+    public boolean isDeleted() { 
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    // Método para preguntar si el ítem está lógicamente eliminado
+    public boolean isEliminadoLogicamente() {
+        return this.deleted;
+    }
 }

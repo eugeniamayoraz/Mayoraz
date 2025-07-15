@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import java.util.ArrayList; // comentario agregado: Necesario para inicializar listas vacías
 import java.util.List; 
 
 import com.tp.ong.moduloRecetas.servicios.IRecetaServicio;
@@ -13,7 +14,7 @@ import com.tp.ong.moduloRecetas.entidades.Receta;
 
 /*
  * @RequestMapping("/recetas") define el prefijo común de ruta (en este caso: /recetas).
-   @GetMapping (o @PostMapping, etc.) define el tipo de método HTTP (GET, POST, etc.) y el camino restante.
+ * @GetMapping (o @PostMapping, etc.) define el tipo de método HTTP (GET, POST, etc.) y el camino restante.
  *
  */
 
@@ -21,66 +22,78 @@ import com.tp.ong.moduloRecetas.entidades.Receta;
 @RequestMapping("/recetas") // Prefijo Común de la Ruta
 public class RecetasBuscarController {
 	
-
     @Autowired
     private IRecetaServicio recetaServicio;
     
-    	//Metodos del controller
+    // Metodos del controller
 
-    //metodo que retorna el Template(la pagina) de Buscar Recetas y a nivel datos: "la lista cargada de las existentes" q se agregan al "modelo".
+    /**
+     * Método principal para buscar y listar recetas.
+     * Maneja la visualización inicial de todas las recetas,
+     * y el filtrado por nombre o por rango de calorías.
+     * También establece una bandera para controlar la visibilidad del botón "Limpiar Filtros".
+     *
+     * @param nombre        Parámetro opcional para buscar por nombre (contiene).
+     * @param minCalorias   Parámetro opcional para el límite inferior de calorías.
+     * @param maxCalorias   Parámetro opcional para el límite superior de calorías.
+     * @param model         Objeto Model para pasar datos a la vista.
+     * @return El nombre de la vista (template Thymeleaf) para el formulario de búsqueda de recetas.
+     */
     @GetMapping("/buscar")
-    public String mostrarBusqueda(Model model) {
-        model.addAttribute("listaRecetas", recetaServicio.listarTodasLasRecetas());//Le pasamos un valor al modelo para poder invocarlo desde el html 
-        return "RecetasTemplates/recetasBuscarForm";//nos retorna al html recetasBuscarForm pero como esta en subcarpeta tuve que agregarle el prefijo
-    }
-    
-    
-    //desde el navegador cdo ya estas en la pantalla (en el html "recetasBuscarForm") hay forms internos que invocan a los otros
-    //metodos HTTP de este controller con la url que se le indica ej /buscarPorNombre ; /buscarCalorias 
-    //con <form th:action="@{/recetas/buscarCalorias}" method="get"> cdo se le da Submit al form interno del html.-
-    
+    public String buscarRecetas(
+            @RequestParam(value = "nombre", required = false) String nombre,
+            @RequestParam(value = "minCalorias", required = false) Integer minCalorias,
+            @RequestParam(value = "maxCalorias", required = false) Integer maxCalorias,
+            Model model) {
 
-    // Método para filtrar recetas que contengan el nombre tipeado...(input)
-    @GetMapping("/buscarPorNombre")
-    public String buscarRecetaPorNombre(@RequestParam("nombre") String nombreReceta, Model model) {
-        List<Receta> recetasEncontradas = recetaServicio.buscarPorNombreContienePalabra(nombreReceta);
+        List<Receta> recetas;
+        String mensaje = null;
+        // comentario agregado: Bandera para indicar si se realizó una búsqueda con filtros
+        boolean searchPerformed = false; 
 
-        if (!recetasEncontradas.isEmpty()) {
-            model.addAttribute("listaRecetas", recetasEncontradas);
-            model.addAttribute("mensaje", "Se encontraron " + recetasEncontradas.size() + " receta(s) que contienen '" + nombreReceta + "'.");
+        // Lógica para aplicar filtros
+        if (nombre != null && !nombre.trim().isEmpty()) {
+            recetas = recetaServicio.buscarPorNombreContienePalabra(nombre.trim());
+            if (recetas.isEmpty()) {
+                mensaje = "No se encontraron recetas con el nombre que contiene '" + nombre + "'.";
+            } else {
+                mensaje = "Se encontraron " + recetas.size() + " receta(s) que contienen '" + nombre + "'.";
+            }
+            searchPerformed = true; // comentario agregado: Se realizó una búsqueda por nombre
+        } else if (minCalorias != null && maxCalorias != null) {
+            // Validar que minCalorias no sea mayor que maxCalorias y que sean positivos
+            if (minCalorias < 0 || maxCalorias < 0 || minCalorias > maxCalorias) {
+                mensaje = "Por favor, ingrese un rango de calorías válido (valores no negativos, y mínimo no puede ser mayor que máximo).";
+                recetas = new ArrayList<>(); // Lista vacía por error de validación
+            } else {
+                recetas = recetaServicio.buscarPorRangoDeCalorías(minCalorias, maxCalorias);
+                if (recetas.isEmpty()) {
+                    mensaje = "No se encontró ninguna receta entre " + minCalorias + " y " + maxCalorias + " calorías.";
+                } else {
+                    mensaje = "Se encontraron " + recetas.size() + " receta(s) entre " + minCalorias + " y " + maxCalorias + " calorías.";
+                }
+            }
+            searchPerformed = true; // Se realizó una búsqueda por rango de calorías
         } else {
-            model.addAttribute("listaRecetas", recetasEncontradas); // Será una lista vacía
-            model.addAttribute("mensaje", "No se encontró ninguna receta que contenga: '" + nombreReceta + "'.");
+            // Si no hay parámetros de filtro, mostrar todas las recetas activas
+            recetas = recetaServicio.listarTodasLasRecetas();
+            if (recetas.isEmpty()) {
+                mensaje = "No hay recetas disponibles.";
+            }
+            // searchPerformed se mantiene en false si no hay filtros aplicados - a esto lo uso para Activar el Btn de Limpiar Filtros
         }
-        return "RecetasTemplates/recetasBuscarForm"; //Devuelve el template renderizado? 
-        //Spring Boot/Thymeleaf se encargan de renderizar esta vista con los datos del modelo antes de enviarla al cliente(naveg)
+
+        model.addAttribute("listaRecetas", recetas); // comentario agregado: Usar "listaRecetas" para la tabla
+        model.addAttribute("mensaje", mensaje); // Pasa el mensaje al modelo
+        
+        // comentario agregado: Para mantener los valores del filtro en el formulario si se hizo una búsqueda
+        model.addAttribute("nombreFiltro", nombre);
+        model.addAttribute("minCaloriasFiltro", minCalorias);
+        model.addAttribute("maxCaloriasFiltro", maxCalorias);
+        
+        // comentario agregado: Añadir la bandera al modelo para el HTML
+        model.addAttribute("searchPerformed", searchPerformed);
+
+        return "RecetasTemplates/recetas-Buscar-Form"; // comentario agregado: Retorna al template principal de búsqueda
     }
-    
-    // Método para filtrar recetas por rango de calorías tipeado...(input)
-    @GetMapping("/buscarCalorias") // Coincide con th:action del formulario
-    public String buscarRecetaPorRangoCalorias(
-        @RequestParam("minCalorias") Integer minCalorias, // Parámetro de inicio del rango
-        @RequestParam("maxCalorias") Integer maxCalorias, // Parámetro de fin del rango
-        Model model) {
-
-        // Valida que minCalorias no sea nulo y no sea mayor que maxCalorias
-        if (minCalorias == null || maxCalorias == null || minCalorias < 0 || maxCalorias < 0 || minCalorias > maxCalorias) {
-            model.addAttribute("listaRecetas", List.of()); // Devuelve una lista vacía
-            model.addAttribute("mensaje", "Por favor, ingrese un rango de calorías válido (valores positivos, y mínimo no puede ser mayor que máximo).");
-            return "RecetasTemplates/recetasBuscarForm";
-        }
-        // cierre if
-
-        List<Receta> recetasEncontradas = recetaServicio.buscarPorRangoDeCalorías(minCalorias, maxCalorias);
-
-        if (!recetasEncontradas.isEmpty()) {
-            model.addAttribute("listaRecetas", recetasEncontradas);
-            model.addAttribute("mensaje", "Se encontraron " + recetasEncontradas.size() + " receta(s) entre " + minCalorias + " y " + maxCalorias + " calorías.");
-        } else {
-            model.addAttribute("listaRecetas", recetasEncontradas);
-            model.addAttribute("mensaje", "No se encontró ninguna receta entre " + minCalorias + " y " + maxCalorias + " calorías.");
-        }
-        return "RecetasTemplates/recetasBuscarForm";
-    }
-    
 }
